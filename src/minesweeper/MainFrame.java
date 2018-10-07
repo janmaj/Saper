@@ -9,6 +9,8 @@ import java.awt.event.ActionEvent;
 import javax.swing.*;
 import javax.swing.border.*;
 
+import sun.security.provider.JavaKeyStore.CaseExactJKS;
+
 /**
  * G³ówne okno gry
  * @author Jan Majchrzak
@@ -24,12 +26,21 @@ public class MainFrame extends JFrame {
 		});
 	}
 	
+	private static ImageIcon mineIcon = new ImageIcon(MainFrame.class.getResource("resources/mine.png"));
+	private static ImageIcon flagIcon = new ImageIcon(MainFrame.class.getResource("resources/flag.png"));
+	private static ImageIcon oneIcon = new ImageIcon(MainFrame.class.getResource("resources/1.png"));
+	private static ImageIcon twoIcon = new ImageIcon(MainFrame.class.getResource("resources/2.png"));
+	private static ImageIcon threeIcon = new ImageIcon(MainFrame.class.getResource("resources/3.png"));
+	
 	private JPanel topPanel;
 	private JPanel gamePanel;
 	private JPanel bottomPanel;
 	private JButton[][] fields;
 	private JCheckBox flagCheckbox;
-	private int bombsLeft = 0;
+	private int bombsLeft = 10;
+	private boolean gameOver = false;
+	private int width = 9;
+	private int height = 9;
 	private JButton bombCountDisplay;
 	
 	public MainFrame() {
@@ -60,13 +71,13 @@ public class MainFrame extends JFrame {
 		
 		topPanel = new JPanel();
 		topPanel.add(new JLabel("Pozosta³e bomby: "));
-		bombCountDisplay = new JButton("0");
+		bombCountDisplay = new JButton(""+bombsLeft);
 		bombCountDisplay.setEnabled(false);
 		topPanel.add(bombCountDisplay);
 		add(topPanel, BorderLayout.NORTH);
 		
 		gamePanel = new JPanel();
-		gamePanel.setBorder(new EmptyBorder(20, 20, 20, 20));
+		gamePanel.setBorder(new EmptyBorder(0, 20, 0, 20));
 		add(gamePanel, BorderLayout.CENTER);
 		bottomPanel = new JPanel();
 		flagCheckbox = new JCheckBox("Ustawianie flagi", false);
@@ -74,7 +85,35 @@ public class MainFrame extends JFrame {
 		add(bottomPanel, BorderLayout.SOUTH);
 		
 		setTitle("Saper");
+		initialize();
+	}
+	
+	/**
+	 * restartuje grê
+	 */
+	private void initialize() {
+		gamePanel.setLayout(new GridLayout(width, height));
+		fields = new JButton[width][height];
+		for(int i = 0; i < height; i++)
+		{
+			for(int j = 0; j<width; j++) {
+				fields[j][i] = new JButton(new FieldClickedAction());
+				fields[j][i].setFocusable(false);
+				gamePanel.add(fields[j][i]);
+			}
+		}
+		gamePanel.setPreferredSize(new Dimension(30*width, 25*height));
 		pack();
+		setResizable(false);
+	}
+	
+	private void mineClicked() {
+		gameOver = true;
+		for(JButton[] column : fields) {
+			for(JButton field : column) {
+				field.getAction().putValue("visible", true);
+			}
+		}
 	}
 	
 	/**
@@ -84,15 +123,47 @@ public class MainFrame extends JFrame {
 	class FieldClickedAction extends AbstractAction {
 
 		public FieldClickedAction() {
-			putValue("visible", "false");
-			putValue("bomb", "false");
-			putValue("flag", "false");
-			putValue("surroundingBombs", "0");
+			putValue("visible", false);
+			putValue("bomb", false);
+			putValue("flag", false);
+			putValue("surroundingBombs", 0);
+			putValue(SMALL_ICON, null);
 		}
 		
-		public void actionPerformed(ActionEvent arg0) {
+		public void actionPerformed(ActionEvent action) {
+			if(gameOver||(boolean)getValue("visible"))
+				return;
 			
+			if(flagCheckbox.isSelected()) {
+				if((boolean)getValue("flag")) {
+					putValue("flag", false);
+					putValue(SMALL_ICON, null);
+					bombsLeft++;
+				}
+				else if(bombsLeft>0){
+					putValue("flag", true);
+					putValue(SMALL_ICON, flagIcon);
+					bombsLeft--;
+				}
+				bombCountDisplay.setText("" + bombsLeft);
+			}
 		}
 		
+		public void revealIcon() {
+			if(getValue("bomb").equals("true"))
+				putValue(SMALL_ICON, mineIcon);
+			else {
+				switch ((int)getValue("surroundingBombs")) {
+				case 1: putValue(SMALL_ICON, oneIcon);					
+					break;
+				case 2: putValue(SMALL_ICON, twoIcon);
+					break;
+				case 3: putValue(SMALL_ICON, threeIcon);
+				break;
+				default: putValue(SMALL_ICON, null);
+					break;
+				}
+			}
+		}
 	}
 }
