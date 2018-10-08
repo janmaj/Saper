@@ -34,9 +34,7 @@ public class MainFrame extends JFrame {
 	private static ImageIcon twoIcon = new ImageIcon(MainFrame.class.getResource("resources/2.png"));
 	private static ImageIcon threeIcon = new ImageIcon(MainFrame.class.getResource("resources/3.png"));
 	
-	private JPanel topPanel;
 	private JPanel gamePanel;
-	private JPanel bottomPanel;
 	private JButton[][] fields;
 	private JCheckBox flagCheckbox;
 	private int bombsLeft = 10;
@@ -74,17 +72,14 @@ public class MainFrame extends JFrame {
 		menuBar.add(helpMenu);
 		setJMenuBar(menuBar);
 		
-		topPanel = new JPanel();
+		JPanel topPanel = new JPanel();
 		topPanel.add(new JLabel("Pozosta³e bomby: "));
 		bombCountDisplay = new JButton(""+bombsLeft);
 		bombCountDisplay.setEnabled(false);
 		topPanel.add(bombCountDisplay);
 		add(topPanel, BorderLayout.NORTH);
 		
-		gamePanel = new JPanel();
-		gamePanel.setBorder(new EmptyBorder(0, 20, 0, 20));
-		add(gamePanel, BorderLayout.CENTER);
-		bottomPanel = new JPanel();
+		JPanel bottomPanel = new JPanel();
 		flagCheckbox = new JCheckBox("Ustawianie flagi", false);
 		bottomPanel.add(flagCheckbox);
 		add(bottomPanel, BorderLayout.SOUTH);
@@ -97,6 +92,11 @@ public class MainFrame extends JFrame {
 	 * restartuje grê
 	 */
 	private void initialize() {
+		if(gamePanel!=null)
+			remove(gamePanel);
+		gamePanel = new JPanel();
+		gamePanel.setBorder(new EmptyBorder(0, 20, 0, 20));
+		add(gamePanel, BorderLayout.CENTER);
 		gamePanel.setLayout(new GridLayout(width, height));
 		fields = new JButton[width][height];
 		for(int i = 0; i < height; i++)
@@ -138,6 +138,7 @@ public class MainFrame extends JFrame {
 				}
 			}
 		}
+		gameOver = false;
 		gamePanel.setPreferredSize(new Dimension(30*width, 25*height));
 		pack();
 		setResizable(false);
