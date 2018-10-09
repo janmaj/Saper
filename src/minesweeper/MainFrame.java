@@ -9,13 +9,6 @@ import java.util.Random;
 
 import javax.swing.*;
 import javax.swing.border.*;
-import javax.swing.GroupLayout.Alignment;
-import javax.swing.LayoutStyle.ComponentPlacement;
-import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.forms.layout.ColumnSpec;
-import com.jgoodies.forms.layout.RowSpec;
-
-
 
 /**
  * G³ówne okno gry
@@ -38,8 +31,8 @@ public class MainFrame extends JFrame {
 	private static ImageIcon oneIcon = new ImageIcon(MainFrame.class.getResource("resources/1.png"));
 	private static ImageIcon twoIcon = new ImageIcon(MainFrame.class.getResource("resources/2.png"));
 	private static ImageIcon threeIcon = new ImageIcon(MainFrame.class.getResource("resources/3.png"));
+	private static ImageIcon fourIcon = new ImageIcon(MainFrame.class.getResource("resources/4.png"));
 	private static ImageIcon smileyIcon = new ImageIcon(MainFrame.class.getResource("resources/smiley.png"));
-	private static ImageIcon scaredIcon = new ImageIcon(MainFrame.class.getResource("resources/scared.png"));
 	private static ImageIcon deadIcon = new ImageIcon(MainFrame.class.getResource("resources/dead.png"));
 	private static ImageIcon coolIcon = new ImageIcon(MainFrame.class.getResource("resources/cool.png"));
 	
@@ -53,6 +46,7 @@ public class MainFrame extends JFrame {
 	private int width = 9;
 	private int height = 9;
 	private int bombCount = 10;
+	private AboutDialog aboutDialog;
 	
 	public MainFrame() {
 		try {
@@ -60,6 +54,7 @@ public class MainFrame extends JFrame {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		aboutDialog = new AboutDialog(this);
 		
 		JMenuBar menuBar = new JMenuBar();
 		JMenu gameMenu = new JMenu("Gra");
@@ -77,6 +72,7 @@ public class MainFrame extends JFrame {
 		
 		JMenu helpMenu = new JMenu("Pomoc");
 		JMenuItem aboutMenuItem = new JMenuItem("O programie");
+		aboutMenuItem.addActionListener(event->aboutDialog.setVisible(true));
 		helpMenu.add(aboutMenuItem);
 		menuBar.add(helpMenu);
 		setJMenuBar(menuBar);
@@ -151,6 +147,7 @@ public class MainFrame extends JFrame {
 		}
 		gameOver = false;
 		bombsLeft = bombCount;
+		flaggedBombs = 0;
 		smileyButton.setIcon(smileyIcon);
 		gamePanel.setPreferredSize(new Dimension(30*width, 25*height));
 		pack();
@@ -163,7 +160,7 @@ public class MainFrame extends JFrame {
 		for(JButton[] column : fields) {
 			for(JButton field : column) {
 				field.getAction().putValue("visible", true);
-				((FieldClickedAction)field.getAction()).revealIcon();
+				((FieldClickedAction)field.getAction()).revealIcon(true);
 			}
 		}
 	}
@@ -174,7 +171,7 @@ public class MainFrame extends JFrame {
 		for(JButton[] column : fields) {
 			for(JButton field : column) {
 				field.getAction().putValue("visible", true);
-				((FieldClickedAction)field.getAction()).revealIcon();
+				((FieldClickedAction)field.getAction()).revealIcon(false);
 			}
 		}
 		JOptionPane.showMessageDialog(this, "Gratulacje! Uda³o ci sie wygraæ", "Wygrana", JOptionPane.INFORMATION_MESSAGE);
@@ -224,7 +221,9 @@ public class MainFrame extends JFrame {
 			}
 		}
 		
-		public void revealIcon() {
+		public void revealIcon(boolean revealFlags) {
+			if(!revealFlags&&(boolean)getValue("flag"))
+				return;
 			if((boolean)getValue("bomb"))
 				putValue(SMALL_ICON, mineIcon);
 			else {
@@ -234,7 +233,9 @@ public class MainFrame extends JFrame {
 				case 2: putValue(SMALL_ICON, twoIcon);
 					break;
 				case 3: putValue(SMALL_ICON, threeIcon);
-				break;
+					break;
+				case 4: putValue(SMALL_ICON, fourIcon);
+					break;
 				default: putValue(SMALL_ICON, plainIcon);
 					break;
 				}
@@ -247,7 +248,7 @@ public class MainFrame extends JFrame {
 				return;
 			
 			putValue("visible", true);
-			revealIcon();
+			revealIcon(false);
 			if((int)getValue("surroundingBombs")==0) {
 				int k=0, l=0;
 				/**
