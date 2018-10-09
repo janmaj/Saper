@@ -198,7 +198,6 @@ public class MainFrame extends JFrame {
 			if(gameOver||(boolean)getValue("visible"))
 				return;
 			
-			smileyButton.setIcon(scaredIcon);
 			if(flagCheckbox.isSelected()) {
 				if((boolean)getValue("flag")) {
 					putValue("flag", false);
@@ -223,13 +222,6 @@ public class MainFrame extends JFrame {
 				else 
 					revealSurroundingFields();
 			}
-			long startTime = System.currentTimeMillis();
-
-			for (int count = 0; ;count++) {
-			long now = System.currentTimeMillis();
-			if((now - startTime) >= 1000) break;
-			}
-			smileyButton.setIcon(smileyIcon);
 		}
 		
 		public void revealIcon() {
