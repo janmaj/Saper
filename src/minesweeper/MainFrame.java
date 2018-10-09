@@ -9,6 +9,11 @@ import java.util.Random;
 
 import javax.swing.*;
 import javax.swing.border.*;
+import javax.swing.GroupLayout.Alignment;
+import javax.swing.LayoutStyle.ComponentPlacement;
+import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.layout.ColumnSpec;
+import com.jgoodies.forms.layout.RowSpec;
 
 
 
@@ -33,7 +38,12 @@ public class MainFrame extends JFrame {
 	private static ImageIcon oneIcon = new ImageIcon(MainFrame.class.getResource("resources/1.png"));
 	private static ImageIcon twoIcon = new ImageIcon(MainFrame.class.getResource("resources/2.png"));
 	private static ImageIcon threeIcon = new ImageIcon(MainFrame.class.getResource("resources/3.png"));
+	private static ImageIcon smileyIcon = new ImageIcon(MainFrame.class.getResource("resources/smiley.png"));
+	private static ImageIcon scaredIcon = new ImageIcon(MainFrame.class.getResource("resources/scared.png"));
+	private static ImageIcon deadIcon = new ImageIcon(MainFrame.class.getResource("resources/dead.png"));
+	private static ImageIcon coolIcon = new ImageIcon(MainFrame.class.getResource("resources/cool.png"));
 	
+	private JButton smileyButton;
 	private JPanel gamePanel;
 	private JButton[][] fields;
 	private JCheckBox flagCheckbox;
@@ -43,7 +53,6 @@ public class MainFrame extends JFrame {
 	private int width = 9;
 	private int height = 9;
 	private int bombCount = 10;
-	private JButton bombCountDisplay;
 	
 	public MainFrame() {
 		try {
@@ -73,16 +82,18 @@ public class MainFrame extends JFrame {
 		setJMenuBar(menuBar);
 		
 		JPanel topPanel = new JPanel();
-		topPanel.add(new JLabel("Pozosta³e bomby: "));
-		bombCountDisplay = new JButton(""+bombsLeft);
-		bombCountDisplay.setEnabled(false);
-		topPanel.add(bombCountDisplay);
+		smileyButton = new JButton(smileyIcon);
+		smileyButton.setFocusable(false);
+		smileyButton.addActionListener(event->initialize());
+		smileyButton.setPreferredSize(new Dimension(30, 30));
+		topPanel.add(smileyButton);
 		add(topPanel, BorderLayout.NORTH);
 		
 		JPanel bottomPanel = new JPanel();
 		flagCheckbox = new JCheckBox("Ustawianie flagi", false);
+		flagCheckbox.setFocusable(false);
 		bottomPanel.add(flagCheckbox);
-		add(bottomPanel, BorderLayout.SOUTH);
+		getContentPane().add(bottomPanel, BorderLayout.SOUTH);
 		
 		setTitle("Saper");
 		initialize();
@@ -96,7 +107,7 @@ public class MainFrame extends JFrame {
 			remove(gamePanel);
 		gamePanel = new JPanel();
 		gamePanel.setBorder(new EmptyBorder(0, 20, 0, 20));
-		add(gamePanel, BorderLayout.CENTER);
+		getContentPane().add(gamePanel, BorderLayout.CENTER);
 		gamePanel.setLayout(new GridLayout(width, height));
 		fields = new JButton[width][height];
 		for(int i = 0; i < height; i++)
@@ -139,6 +150,8 @@ public class MainFrame extends JFrame {
 			}
 		}
 		gameOver = false;
+		bombsLeft = bombCount;
+		smileyButton.setIcon(smileyIcon);
 		gamePanel.setPreferredSize(new Dimension(30*width, 25*height));
 		pack();
 		setResizable(false);
@@ -146,6 +159,7 @@ public class MainFrame extends JFrame {
 	
 	private void mineClicked() {
 		gameOver = true;
+		smileyButton.setIcon(deadIcon);
 		for(JButton[] column : fields) {
 			for(JButton field : column) {
 				field.getAction().putValue("visible", true);
@@ -156,6 +170,7 @@ public class MainFrame extends JFrame {
 	
 	private void solved() {
 		gameOver = true;
+		smileyButton.setIcon(coolIcon);
 		for(JButton[] column : fields) {
 			for(JButton field : column) {
 				field.getAction().putValue("visible", true);
@@ -183,6 +198,7 @@ public class MainFrame extends JFrame {
 			if(gameOver||(boolean)getValue("visible"))
 				return;
 			
+			smileyButton.setIcon(scaredIcon);
 			if(flagCheckbox.isSelected()) {
 				if((boolean)getValue("flag")) {
 					putValue("flag", false);
@@ -198,7 +214,6 @@ public class MainFrame extends JFrame {
 					if(flaggedBombs==bombCount)
 						solved();
 				}
-				bombCountDisplay.setText("" + bombsLeft);
 			}
 			else {
 				if((boolean)getValue("flag"))
@@ -208,6 +223,13 @@ public class MainFrame extends JFrame {
 				else 
 					revealSurroundingFields();
 			}
+			long startTime = System.currentTimeMillis();
+
+			for (int count = 0; ;count++) {
+			long now = System.currentTimeMillis();
+			if((now - startTime) >= 1000) break;
+			}
+			smileyButton.setIcon(smileyIcon);
 		}
 		
 		public void revealIcon() {
@@ -236,6 +258,9 @@ public class MainFrame extends JFrame {
 			revealIcon();
 			if((int)getValue("surroundingBombs")==0) {
 				int k=0, l=0;
+				/**
+				 * Wyszukanie odpowiedniego pola w tablicy fields
+				 */
 				for(int i = 0; i < height; i++)
 				{
 					for(int j = 0; j<width; j++) {
@@ -246,6 +271,9 @@ public class MainFrame extends JFrame {
 					}
 				}
 				
+				/**
+				 * Rekurencyjne wywo³anie funkcji ods³aniaj¹cej
+				 */
 				for(int i = 0; i<adjacentIndexes.length-1; i+=2) {
 					try {
 						if(!(boolean)fields[k+adjacentIndexes[i]][l+adjacentIndexes[i+1]].getAction().getValue("flag"))
