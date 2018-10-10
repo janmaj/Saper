@@ -43,9 +43,9 @@ public class MainFrame extends JFrame {
 	private int bombsLeft = 10;
 	private int flaggedBombs = 0;
 	private boolean gameOver = false;
-	private int width = 9;
-	private int height = 9;
-	private int bombCount = 10;
+	private int width = 20;
+	private int height = 15;
+	private int bombCount = 20;
 	private AboutDialog aboutDialog;
 	
 	public MainFrame() {
@@ -104,13 +104,14 @@ public class MainFrame extends JFrame {
 		gamePanel = new JPanel();
 		gamePanel.setBorder(new EmptyBorder(0, 20, 0, 20));
 		getContentPane().add(gamePanel, BorderLayout.CENTER);
-		gamePanel.setLayout(new GridLayout(width, height));
+		gamePanel.setLayout(new GridLayout(height, width));
 		fields = new JButton[width][height];
 		for(int i = 0; i < height; i++)
 		{
 			for(int j = 0; j<width; j++) {
 				fields[j][i] = new JButton(new FieldClickedAction());
 				fields[j][i].setFocusable(false);
+				fields[j][i].setPreferredSize(new Dimension(26, 26));
 				gamePanel.add(fields[j][i]);
 			}
 		}
@@ -132,9 +133,9 @@ public class MainFrame extends JFrame {
 		/**
 		 * W tej pêtli sprawdzana jest iloœæ bomb otaczaj¹cych ka¿de pole
 		 */
-		for(int i = 0; i < height; i++)
+		for(int i = 0; i < width; i++)
 		{
-			for(int j = 0; j<width; j++) {
+			for(int j = 0; j<height; j++) {
 				int surroundingBombs = 0;
 				for(int k = 0; k<adjacentIndexes.length-1; k+=2) {
 					try {
@@ -149,7 +150,6 @@ public class MainFrame extends JFrame {
 		bombsLeft = bombCount;
 		flaggedBombs = 0;
 		smileyButton.setIcon(smileyIcon);
-		gamePanel.setPreferredSize(new Dimension(30*width, 25*height));
 		pack();
 		setResizable(false);
 	}
@@ -254,9 +254,9 @@ public class MainFrame extends JFrame {
 				/**
 				 * Wyszukanie odpowiedniego pola w tablicy fields
 				 */
-				for(int i = 0; i < height; i++)
+				for(int i = 0; i < width; i++)
 				{
-					for(int j = 0; j<width; j++) {
+					for(int j = 0; j<height; j++) {
 						if(fields[i][j].getAction()==this) {
 							k = i;
 							l = j;
