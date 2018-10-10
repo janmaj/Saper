@@ -69,6 +69,7 @@ public class DifficultyChangeDialog extends JPanel{
 		gbc_beginnerButton.gridx = 0;
 		gbc_beginnerButton.gridy = 1;
 		add(beginnerButton, gbc_beginnerButton);
+		beginnerButton.setSelected(true);
 		
 		JLabel label = new JLabel("9");
 		GridBagConstraints gbc_label = new GridBagConstraints();

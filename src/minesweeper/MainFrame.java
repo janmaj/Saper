@@ -111,6 +111,7 @@ public class MainFrame extends JFrame {
 		getContentPane().add(bottomPanel, BorderLayout.SOUTH);
 		
 		setTitle("Saper");
+		setIconImage(mineIcon.getImage());
 		initialize();
 	}
 	
@@ -169,6 +170,7 @@ public class MainFrame extends JFrame {
 		bombsLeft = bombCount;
 		flaggedBombs = 0;
 		smileyButton.setIcon(smileyIcon);
+		flagCheckbox.setSelected(false);
 		pack();
 		setResizable(false);
 	}
