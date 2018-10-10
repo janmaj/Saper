@@ -32,6 +32,10 @@ public class MainFrame extends JFrame {
 	private static ImageIcon twoIcon = new ImageIcon(MainFrame.class.getResource("resources/2.png"));
 	private static ImageIcon threeIcon = new ImageIcon(MainFrame.class.getResource("resources/3.png"));
 	private static ImageIcon fourIcon = new ImageIcon(MainFrame.class.getResource("resources/4.png"));
+	private static ImageIcon fiveIcon = new ImageIcon(MainFrame.class.getResource("resources/5.png"));
+	private static ImageIcon sixIcon = new ImageIcon(MainFrame.class.getResource("resources/6.png"));
+	private static ImageIcon sevenIcon = new ImageIcon(MainFrame.class.getResource("resources/7.png"));
+	private static ImageIcon eightIcon = new ImageIcon(MainFrame.class.getResource("resources/8.png"));
 	private static ImageIcon smileyIcon = new ImageIcon(MainFrame.class.getResource("resources/smiley.png"));
 	private static ImageIcon deadIcon = new ImageIcon(MainFrame.class.getResource("resources/dead.png"));
 	private static ImageIcon coolIcon = new ImageIcon(MainFrame.class.getResource("resources/cool.png"));
@@ -43,10 +47,11 @@ public class MainFrame extends JFrame {
 	private int bombsLeft = 10;
 	private int flaggedBombs = 0;
 	private boolean gameOver = false;
-	private int width = 20;
-	private int height = 15;
-	private int bombCount = 20;
+	private int width = 9;
+	private int height = 9;
+	private int bombCount = 10;
 	private AboutDialog aboutDialog;
+	private DifficultyChangeDialog difficultyChangeDialog;
 	
 	public MainFrame() {
 		try {
@@ -60,6 +65,20 @@ public class MainFrame extends JFrame {
 		JMenu gameMenu = new JMenu("Gra");
 		JMenuItem restartGameMenuItem = new JMenuItem("Nowa Gra");
 		restartGameMenuItem.addActionListener(event->initialize());
+		JMenuItem difficultyMenuItem = new JMenuItem("Poziom trudnoœci...");
+		difficultyMenuItem.addActionListener(event->{
+			if(difficultyChangeDialog==null)
+				difficultyChangeDialog = new DifficultyChangeDialog();
+			int result = difficultyChangeDialog.showDialog(this, "Wybór poziomu trudnoœci");
+			if(result==DifficultyChangeDialog.OK_OPTION) {
+				DifficultyChangeDialog.DifficultySetting difficultySetting = difficultyChangeDialog.getDifficultySetting();
+				width = difficultySetting.getWidth();
+				height = difficultySetting.getHeight();
+				bombCount = difficultySetting.getMineCount();
+				initialize();
+			}
+		});
+		gameMenu.add(difficultyMenuItem);
 		JMenuItem exitMenuItem = new JMenuItem("Wyjœcie");
 		exitMenuItem.addActionListener(event->{
 			int result = JOptionPane.showConfirmDialog(this, "Czy na pewno chcesz wyjœæ?", "Chcesz wyjœæ?", JOptionPane.YES_NO_CANCEL_OPTION);
@@ -235,6 +254,14 @@ public class MainFrame extends JFrame {
 				case 3: putValue(SMALL_ICON, threeIcon);
 					break;
 				case 4: putValue(SMALL_ICON, fourIcon);
+					break;
+				case 5: putValue(SMALL_ICON, fiveIcon);
+					break;
+				case 6: putValue(SMALL_ICON, sixIcon);
+					break;
+				case 7: putValue(SMALL_ICON, sevenIcon);
+					break;
+				case 8: putValue(SMALL_ICON, eightIcon);
 					break;
 				default: putValue(SMALL_ICON, plainIcon);
 					break;
